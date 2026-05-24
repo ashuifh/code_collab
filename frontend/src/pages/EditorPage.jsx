@@ -7,7 +7,7 @@ export default function EditorPage() {
   const { sessionId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   const [code, setCode] = useState('// Welcome to CollabCode!\n// Start coding here...');
   const [participants, setParticipants] = useState([]);
   const [language, setLanguage] = useState('javascript');
@@ -18,16 +18,22 @@ export default function EditorPage() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [changeDescription, setChangeDescription] = useState('');
-  
+
   // AI Assistant States
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(true);
-  
+  const [aiReviews, setAiReviews] = useState({});
+  const [isReviewingAI, setIsReviewingAI] = useState(false);
+
   const socketRef = useRef(null);
   const editorRef = useRef(null);
   const analyzeTimeoutRef = useRef(null);
-  const username = location.state?.username || 'Anonymous User';
+  const [username] = useState(() => {
+    if (location.state?.username) return location.state.username;
+    return window.prompt("Welcome to CollabCode! Please enter your name to join:") || 'Guest User';
+  });
+  const [memberId] = useState(() => Math.floor(10000 + Math.random() * 90000));
   const [isHost, setIsHost] = useState(location.state?.isHost || false);
   const password = location.state?.password || '';
 
@@ -98,48 +104,71 @@ export default function EditorPage() {
     alert('Link copied to clipboard! Share it with others so they can join.');
   };
 
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to leave the session?")) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+      navigate('/');
+    }
+  };
+
   const handleRunCode = async () => {
     setIsRunning(true);
     setIsOutputVisible(true);
     setOutput('Running code...\n');
-    
-    // Map our language values to piston language versions
+
+    // Map our languages to Judge0 CE Language IDs (CodeArena)
     const languageMap = {
-      javascript: { language: 'javascript', version: '18.15.0' },
-      python: { language: 'python', version: '3.10.0' },
-      cpp: { language: 'c++', version: '10.2.0' },
-      c: { language: 'c', version: '10.2.0' },
-      java: { language: 'java', version: '15.0.2' },
-      go: { language: 'go', version: '1.16.2' },
-      rust: { language: 'rust', version: '1.68.2' },
+      javascript: 63, // Node.js
+      python: 71,     // Python 3
+      cpp: 54,        // C++ (GCC)
+      c: 50,          // C (GCC)
+      java: 62,       // Java
+      go: 60,         // Go
+      rust: 73,       // Rust
     };
 
-    const pistonLang = languageMap[language];
+    const langId = languageMap[language];
 
-    if (!pistonLang) {
+    if (!langId) {
       setOutput(`Error: Running ${language} is not supported directly in this prototype yet.\n`);
       setIsRunning(false);
       return;
     }
 
     try {
-      const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+      // We use 'wait=true' to get the execution result directly in one request
+      const response = await fetch('https://judge029.p.rapidapi.com/submissions?base64_encoded=false&wait=true', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-RapidAPI-Key': import.meta.env.VITE_RAPIDAPI_KEY, // We will use env variable for safety
+          'X-RapidAPI-Host': 'judge029.p.rapidapi.com'
+        },
         body: JSON.stringify({
-          language: pistonLang.language,
-          version: pistonLang.version,
-          files: [{ content: code }]
+          language_id: langId,
+          source_code: code
         })
       });
       const data = await response.json();
-      if (data.run) {
-        setOutput(data.run.output || 'No output generated.');
-        if (data.compile && data.compile.code !== 0) {
-          setOutput(`Compilation Error:\n${data.compile.output}`);
+
+      // Handle different types of outputs from Judge0
+      if (response.status !== 200 && response.status !== 201) {
+        // If API key is missing or invalid, this will trigger
+        if (response.status === 401 || response.status === 403) {
+          setOutput("Authentication Error: Invalid or missing RapidAPI Key. Please check your .env file.");
+        } else {
+          setOutput(`API Error: ${data.message || 'Failed to submit code'}`);
         }
+      } else if (data.compile_output) {
+        setOutput(`Compilation Error:\n${data.compile_output}`);
+      } else if (data.stderr) {
+        setOutput(`Runtime Error:\n${data.stderr}`);
+      } else if (data.stdout !== null) {
+        setOutput(data.stdout || 'Execution finished successfully. (No output)');
       } else {
-        setOutput(data.message || 'Error occurred while running the code.');
+        setOutput(data.status?.description || 'Execution completed.');
       }
     } catch (error) {
       setOutput(`Failed to execute code: ${error.message}`);
@@ -174,66 +203,69 @@ export default function EditorPage() {
   };
 
   // --- AI Assistant Logic ---
-  const analyzeCodeWithAI = (currentCode, currentLang) => {
+  const handleAnalyzeCode = async () => {
+    if (!code || code.trim().length < 5) {
+      alert("Please write some code first!");
+      return;
+    }
+
     setIsAnalyzing(true);
-    
-    // Simulate AI API Call (OpenAI/Anthropic)
-    setTimeout(() => {
-      const newSuggestions = [];
+    setAiSuggestions([{ type: 'info', title: 'Analyzing Code', desc: 'Understanding your code...' }]);
+
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'your_gemini_api_key_here') throw new Error('No API Key');
+
+      const prompt = `Explain this ${language} code in detail. Tell me what I am doing, what is inside this code, and what everything does. Be concise but clear. Do not use markdown blocks for the final answer, keep it readable.\n\nCode:\n${code}`;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
       
-      if (currentCode.includes('console.log')) {
-        newSuggestions.push({ type: 'warning', title: 'Clean up code', desc: 'Consider removing console.log statements before deploying.' });
-      }
-      if (currentCode.includes('var ')) {
-        newSuggestions.push({ type: 'style', title: 'Modern JavaScript', desc: 'Use let or const instead of var for better scoping.' });
-      }
-      if (currentCode.includes('==') && !currentCode.includes('===')) {
-        newSuggestions.push({ type: 'bug', title: 'Type Coercion', desc: 'Use strict equality (===) to prevent unexpected type coercion bugs.' });
-      }
-      if (newSuggestions.length === 0 && currentCode.length > 20) {
-        newSuggestions.push({ type: 'success', title: 'Looks good!', desc: 'Code looks clean and follows basic best practices.' });
-      }
+      const data = await response.json();
+      const text = data.candidates[0].content.parts[0].text;
       
-      setAiSuggestions(newSuggestions);
-      setIsAnalyzing(false);
-    }, 1500);
+      setAiSuggestions([{ type: 'info', title: 'Code Explanation', desc: text }]);
+    } catch (e) {
+       setAiSuggestions([{ type: 'warning', title: 'Analysis Failed', desc: e.message === 'No API Key' ? 'Please add VITE_GEMINI_API_KEY in .env' : 'API error occurred.' }]);
+    }
+    setIsAnalyzing(false);
   };
 
-  useEffect(() => {
-    // Debounce AI analysis
-    if (analyzeTimeoutRef.current) clearTimeout(analyzeTimeoutRef.current);
-    
-    analyzeTimeoutRef.current = setTimeout(() => {
-      if (code && code.trim().length > 10) {
-        analyzeCodeWithAI(code, language);
-      }
-    }, 2000);
-    
-    return () => clearTimeout(analyzeTimeoutRef.current);
-  }, [code, language]);
+  const handleAIReviewRequest = async (req) => {
+    setIsReviewingAI(true);
+    setAiReviews(prev => ({ ...prev, [req.id]: '🤖 AI is analyzing the changes...' }));
 
-  const handleExplainSelection = () => {
-    if (!editorRef.current) return;
-    const selection = editorRef.current.getSelection();
-    const selectedText = editorRef.current.getModel().getValueInRange(selection);
-    
-    if (selectedText.trim()) {
-      setIsAnalyzing(true);
-      setAiSuggestions([{ type: 'info', title: 'Explaining Selection', desc: 'Analyzing the selected code snippet...' }]);
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey || apiKey === 'your_gemini_api_key_here') throw new Error('No API Key');
+
+      const prompt = `You are a strict code reviewer. Review the following code change proposed by a user.
+Original Code:
+${req.oldCode}
+
+Proposed Code:
+${req.proposedCode}
+
+Developer's Comment: ${req.description}
+
+Write a very brief review (2-3 sentences max) explaining what changed, if it looks correct, and if the admin should merge it. Keep it concise without markdown.`;
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
       
-      setTimeout(() => {
-        setAiSuggestions([
-          { 
-            type: 'info', 
-            title: 'Explanation', 
-            desc: `This snippet appears to be a block of ${language} code. In a real app, an LLM would provide a detailed line-by-line explanation here.` 
-          }
-        ]);
-        setIsAnalyzing(false);
-      }, 1500);
-    } else {
-      alert("Please highlight some code in the editor first!");
+      const data = await response.json();
+      const text = data.candidates[0].content.parts[0].text;
+      
+      setAiReviews(prev => ({ ...prev, [req.id]: text }));
+    } catch (e) {
+      setAiReviews(prev => ({ ...prev, [req.id]: 'AI Review failed. Ensure your Gemini API key is correct in .env' }));
     }
+    setIsReviewingAI(false);
   };
 
   const handleEditorDidMount = (editor, monaco) => {
@@ -275,11 +307,35 @@ export default function EditorPage() {
             )}
           </ul>
         </div>
-        
-        {/* Connection status footer */}
-        <div className="p-3 border-t border-slate-800 text-xs text-slate-500 flex items-center justify-center gap-2 bg-slate-900/50">
-           <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-           Connected
+
+        {/* User Profile & Connection Footer */}
+        <div className="border-t border-slate-800 bg-slate-900/80 p-4">
+          <div className="flex items-center gap-3 mb-3">
+            {/* Avatar */}
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm shrink-0">
+              {username.charAt(0).toUpperCase()}
+            </div>
+            {/* User Info */}
+            <div className="flex-1 overflow-hidden">
+              <div className="text-sm font-semibold text-white truncate">{username}</div>
+              <div className="text-xs text-slate-400 truncate">ID: #{memberId}</div>
+            </div>
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-md transition-colors shrink-0"
+              title="Logout"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            </button>
+          </div>
+          <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"></div>
+              <span>Connected</span>
+            </div>
+            <span className="bg-slate-800 px-2 py-0.5 rounded text-[10px] uppercase font-medium text-slate-300">{isHost ? 'Host' : 'Guest'}</span>
+          </div>
         </div>
       </div>
 
@@ -289,8 +345,8 @@ export default function EditorPage() {
         <div className="h-14 border-b border-slate-800 flex items-center px-6 justify-between bg-[#1e1e1e] z-10 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="text-sm font-medium text-slate-300 px-3 py-1 bg-slate-800 rounded-md">main.js</div>
-            
-            <select 
+
+            <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               className="bg-slate-800 border-none text-slate-300 text-sm rounded-md px-2 py-1 focus:ring-1 focus:ring-blue-500 outline-none"
@@ -306,23 +362,23 @@ export default function EditorPage() {
               <option value="css">CSS</option>
             </select>
           </div>
-          
+
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={handleRunCode}
               disabled={isRunning}
               className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
             >
               {isRunning ? (
-                <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
               )}
               Run Code
             </button>
-            
+
             {isHost && changeRequests.length > 0 && (
-              <button 
+              <button
                 onClick={() => setShowReviewModal(true)}
                 className="px-4 py-1.5 bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30 border border-yellow-500/30 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2"
               >
@@ -332,31 +388,31 @@ export default function EditorPage() {
             )}
 
             {!isHost && (
-              <button 
+              <button
                 onClick={() => setShowSubmitModal(true)}
                 className="px-4 py-1.5 bg-green-600/20 text-green-400 hover:bg-green-600/30 border border-green-500/30 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>
                 Submit Change
               </button>
             )}
-            <button 
+            <button
               onClick={() => setShowAIAssistant(!showAIAssistant)}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2 ${showAIAssistant ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 hover:bg-purple-600/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
               AI Assistant
             </button>
-            <button 
+            <button
               onClick={handleShareLink}
               className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm shadow-blue-900/20 flex items-center gap-2"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></svg>
               Share
             </button>
           </div>
         </div>
-        
+
         {/* Monaco Editor Container */}
         <div className="flex-1 w-full relative flex flex-col">
           <div className="flex-1 min-h-0 relative">
@@ -382,7 +438,7 @@ export default function EditorPage() {
               }}
             />
           </div>
-          
+
           {/* Output Terminal Pane */}
           {isOutputVisible && (
             <div className="h-48 border-t border-slate-800 bg-[#1e1e1e] flex flex-col">
@@ -405,7 +461,7 @@ export default function EditorPage() {
         <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.3)]">
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <h2 className="font-bold text-slate-200 flex items-center gap-2">
-              <svg className="text-purple-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+              <svg className="text-purple-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
               AI Assistant
             </h2>
             {isAnalyzing && (
@@ -415,10 +471,10 @@ export default function EditorPage() {
               </span>
             )}
           </div>
-          
+
           <div className="flex-1 overflow-y-auto p-4 bg-slate-950/50">
             <p className="text-xs text-slate-500 mb-4 italic">Automatically analyzing code every 2 seconds...</p>
-            
+
             <div className="space-y-3">
               {aiSuggestions.map((sug, i) => {
                 let badgeColor = 'bg-slate-700 text-slate-300';
@@ -440,25 +496,25 @@ export default function EditorPage() {
                   </div>
                 );
               })}
-              
+
               {aiSuggestions.length === 0 && !isAnalyzing && (
                 <div className="text-center py-8">
                   <div className="text-slate-600 mb-2">
-                    <svg className="mx-auto" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+                    <svg className="mx-auto" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4" /><path d="M3.34 19a10 10 0 1 1 17.32 0" /></svg>
                   </div>
-                  <p className="text-sm text-slate-500">Listening to your code...</p>
+                  <p className="text-sm text-slate-500">Click Analyze Code below to get an explanation.</p>
                 </div>
               )}
             </div>
           </div>
-          
+
           <div className="p-3 border-t border-slate-800 bg-slate-900">
-            <button 
-              onClick={handleExplainSelection}
+            <button
+              onClick={handleAnalyzeCode}
               className="w-full py-2 bg-slate-800 hover:bg-purple-600/20 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-500/30 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-              Explain Selected Code
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></svg>
+              Analyze Full Code
             </button>
           </div>
         </div>
@@ -476,7 +532,7 @@ export default function EditorPage() {
             </div>
             <div className="p-4">
               <label className="block text-sm font-medium text-slate-300 mb-2">Description of changes</label>
-              <textarea 
+              <textarea
                 className="w-full h-24 px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-sm text-slate-100 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 resize-none"
                 placeholder="E.g., Fixed the bug in calculateSum function..."
                 value={changeDescription}
@@ -484,13 +540,13 @@ export default function EditorPage() {
               />
             </div>
             <div className="p-4 border-t border-slate-800 flex justify-end gap-3 bg-slate-900">
-              <button 
+              <button
                 onClick={() => setShowSubmitModal(false)}
                 className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleSubmitChange}
                 className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
               >
@@ -531,19 +587,35 @@ export default function EditorPage() {
                   <div className="p-4 bg-[#1e1e1e] max-h-60 overflow-y-auto font-mono text-sm">
                     <pre className="text-green-400">{req.proposedCode}</pre>
                   </div>
-                  <div className="p-3 bg-slate-900 border-t border-slate-800 flex gap-3 justify-end">
-                    <button 
-                      onClick={() => handleResolveRequest(req.id, 'rejected')}
-                      className="px-4 py-1.5 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 rounded-md text-sm font-medium transition-colors"
+                  {aiReviews[req.id] && (
+                    <div className="p-3 bg-purple-900/20 border-t border-purple-500/30 text-sm text-purple-200">
+                      <span className="font-bold text-purple-400 mr-2">🤖 AI Review:</span> 
+                      {aiReviews[req.id]}
+                    </div>
+                  )}
+                  <div className="p-3 bg-slate-900 border-t border-slate-800 flex gap-3 justify-between items-center">
+                    <button
+                      onClick={() => handleAIReviewRequest(req)}
+                      disabled={isReviewingAI}
+                      className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 rounded-md text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                     >
-                      Reject
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                      Ask AI for Review
                     </button>
-                    <button 
-                      onClick={() => handleResolveRequest(req.id, 'accepted')}
-                      className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
-                    >
-                      Accept & Merge
-                    </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleResolveRequest(req.id, 'rejected')}
+                        className="px-4 py-1.5 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Reject
+                      </button>
+                      <button
+                        onClick={() => handleResolveRequest(req.id, 'accepted')}
+                        className="px-4 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm"
+                      >
+                        Accept & Merge
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

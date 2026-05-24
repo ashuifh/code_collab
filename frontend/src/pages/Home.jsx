@@ -72,6 +72,13 @@ export default function Home() {
               onChange={(e) => setJoinSessionId(e.target.value)}
               required
             />
+            <input
+              type="text"
+              className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
+              placeholder="Your Name (optional)"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
             <input 
               type="password" 
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
