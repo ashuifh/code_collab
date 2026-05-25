@@ -5,14 +5,35 @@ const { v4: uuidv4 } = require('uuid');
 
 const DATA_DIR = path.join(__dirname, 'data');
 const JSON_STORE_PATH = path.join(DATA_DIR, 'change_history.json');
+const JSON_SESSIONS_PATH = path.join(DATA_DIR, 'sessions.json');
+
+const DEFAULT_CODE = '// Welcome to CollabCode!\n// Start coding here...';
 
 let pool = null;
 let usePostgres = false;
 
+function needsSsl(connectionString) {
+  if (process.env.DATABASE_SSL === 'true') return true;
+  if (process.env.DATABASE_SSL === 'false') return false;
+  const url = connectionString || '';
+  return (
+    url.includes('supabase.co') ||
+    url.includes('pooler.supabase.com') ||
+    url.includes('render.com') ||
+    url.includes('neon.tech') ||
+    url.includes('sslmode=require')
+  );
+}
+
 async function initDb() {
-  if (process.env.DATABASE_URL) {
+  const connectionString = process.env.DATABASE_URL;
+
+  if (connectionString) {
     const { Pool } = require('pg');
-    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    pool = new Pool({
+      connectionString,
+      ssl: needsSsl(connectionString) ? { rejectUnauthorized: false } : undefined
+    });
     usePostgres = true;
     await pool.query(`
       CREATE TABLE IF NOT EXISTS change_history (
@@ -30,6 +51,13 @@ async function initDb() {
       );
       CREATE INDEX IF NOT EXISTS idx_change_history_session_created
         ON change_history(session_id, created_at DESC);
+      CREATE TABLE IF NOT EXISTS sessions (
+        id VARCHAR(255) PRIMARY KEY,
+        code TEXT NOT NULL,
+        language VARCHAR(50) DEFAULT 'javascript',
+        password TEXT,
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      );
     `);
     console.log('Change history: PostgreSQL connected');
     return;
@@ -41,7 +69,18 @@ async function initDb() {
   if (!fs.existsSync(JSON_STORE_PATH)) {
     fs.writeFileSync(JSON_STORE_PATH, '[]', 'utf8');
   }
-  console.log('Change history: using local JSON store (set DATABASE_URL for PostgreSQL)');
+  if (!fs.existsSync(JSON_SESSIONS_PATH)) {
+    fs.writeFileSync(JSON_SESSIONS_PATH, '{}', 'utf8');
+  }
+  const onRender = !!(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+  if (onRender || process.env.NODE_ENV === 'production') {
+    console.warn(
+      'WARNING: DATABASE_URL not set. Change history uses a temp JSON file and will be LOST on redeploy. ' +
+      'Add Supabase or Render Postgres URL in environment variables.'
+    );
+  } else {
+    console.log('Change history: local JSON store (dev only). Set DATABASE_URL for PostgreSQL.');
+  }
 }
 
 function readJsonStore() {
@@ -149,4 +188,93 @@ async function getChangeHistory(sessionId, limit = 100) {
   return all.slice(-limit).map(formatRow);
 }
 
-module.exports = { initDb, logChange, getChangeHistory };
+function readJsonSessions() {
+  try {
+    return JSON.parse(fs.readFileSync(JSON_SESSIONS_PATH, 'utf8'));
+  } catch {
+    return {};
+  }
+}
+
+function writeJsonSessions(data) {
+  fs.writeFileSync(JSON_SESSIONS_PATH, JSON.stringify(data, null, 2), 'utf8');
+}
+
+async function saveSessionSnapshot(sessionId, { code, language, password }) {
+  const payload = {
+    code: code ?? DEFAULT_CODE,
+    language: language || 'javascript',
+    password: password || null,
+    updated_at: new Date().toISOString()
+  };
+
+  if (usePostgres && pool) {
+    await pool.query(
+      `INSERT INTO sessions (id, code, language, password, updated_at)
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         code = EXCLUDED.code,
+         language = EXCLUDED.language,
+         password = EXCLUDED.password,
+         updated_at = NOW()`,
+      [sessionId, payload.code, payload.language, payload.password]
+    );
+    return payload;
+  }
+
+  const all = readJsonSessions();
+  all[sessionId] = payload;
+  writeJsonSessions(all);
+  return payload;
+}
+
+async function loadSessionSnapshot(sessionId) {
+  if (usePostgres && pool) {
+    const result = await pool.query(
+      'SELECT id, code, language, password FROM sessions WHERE id = $1',
+      [sessionId]
+    );
+    if (result.rows[0]) {
+      return {
+        code: result.rows[0].code,
+        language: result.rows[0].language,
+        password: result.rows[0].password
+      };
+    }
+    return restoreCodeFromHistory(sessionId);
+  }
+
+  const all = readJsonSessions();
+  if (all[sessionId]) {
+    return {
+      code: all[sessionId].code,
+      language: all[sessionId].language,
+      password: all[sessionId].password
+    };
+  }
+  return restoreCodeFromHistory(sessionId);
+}
+
+async function restoreCodeFromHistory(sessionId) {
+  const history = await getChangeHistory(sessionId, 50);
+  if (!history.length) return null;
+
+  const latest = [...history].reverse().find((e) => e.newCode != null);
+  if (!latest) return null;
+
+  const created = history.find((e) => e.changeType === 'session_created');
+  return {
+    code: latest.newCode,
+    language: created?.metadata?.language || 'javascript',
+    password: null
+  };
+}
+
+module.exports = {
+  initDb,
+  logChange,
+  getChangeHistory,
+  saveSessionSnapshot,
+  loadSessionSnapshot,
+  DEFAULT_CODE
+};

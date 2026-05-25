@@ -14,3 +14,11 @@ CREATE TABLE IF NOT EXISTS change_history (
 
 CREATE INDEX IF NOT EXISTS idx_change_history_session_created
   ON change_history(session_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id VARCHAR(255) PRIMARY KEY,
+  code TEXT NOT NULL,
+  language VARCHAR(50) DEFAULT 'javascript',
+  password TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
