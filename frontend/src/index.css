@@ -5,3 +5,10 @@
     @apply bg-slate-900 text-slate-100;
   }
 }
+
+/* Sidebars open instantly — no width/margin animation */
+.editor-layout-main,
+.editor-right-panel {
+  transition: none !important;
+  animation: none !important;
+}

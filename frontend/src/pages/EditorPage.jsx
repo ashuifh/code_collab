@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { io } from 'socket.io-client';
+import ChangeHistoryTimeline from '../components/ChangeHistoryTimeline';
+
+const API_BASE = 'http://localhost:3001';
 
 export default function EditorPage() {
   const { sessionId } = useParams();
@@ -18,16 +21,20 @@ export default function EditorPage() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [changeDescription, setChangeDescription] = useState('');
+  const [changeHistory, setChangeHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const baselineCodeRef = useRef('');
 
   // AI Assistant States
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [showAIAssistant, setShowAIAssistant] = useState(true);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [aiReviews, setAiReviews] = useState({});
   const [isReviewingAI, setIsReviewingAI] = useState(false);
 
   const socketRef = useRef(null);
   const editorRef = useRef(null);
+  const outputPanelRef = useRef(null);
   const analyzeTimeoutRef = useRef(null);
   const [username] = useState(() => {
     if (location.state?.username) return location.state.username;
@@ -40,7 +47,7 @@ export default function EditorPage() {
   useEffect(() => {
     // Initialize socket connection
     // We'll connect to the backend running on port 3001
-    socketRef.current = io('http://localhost:3001');
+    socketRef.current = io(API_BASE);
     const socket = socketRef.current;
 
     socket.on('connect', () => {
@@ -52,19 +59,35 @@ export default function EditorPage() {
       }
     });
 
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/sessions/${sessionId}/history`);
+        if (res.ok) {
+          const data = await res.json();
+          setChangeHistory(data);
+        }
+      } catch {
+        socket.emit('get-change-history', { sessionId });
+      }
+    };
+
     socket.on('session-created', ({ sessionId: id, session, role }) => {
       setParticipants(session.participants);
       setCode(session.code);
+      baselineCodeRef.current = session.code;
       setLanguage(session.language);
       setIsHost(role === 'host');
+      fetchHistory();
     });
 
     socket.on('session-joined', ({ session, role }) => {
       setParticipants(session.participants);
       setCode(session.code);
+      baselineCodeRef.current = session.code;
       setLanguage(session.language);
       setIsHost(role === 'host');
       setChangeRequests(session.changeRequests);
+      fetchHistory();
     });
 
     socket.on('participants-updated', (updatedParticipants) => {
@@ -73,6 +96,25 @@ export default function EditorPage() {
 
     socket.on('code-updated', (newCode) => {
       setCode(newCode);
+      if (!isHost) {
+        baselineCodeRef.current = newCode;
+      }
+    });
+
+    socket.on('change-history', (history) => {
+      setChangeHistory(history);
+    });
+
+    socket.on('change-history-entry', (entry) => {
+      setChangeHistory((prev) => {
+        if (prev.some((e) => e.id === entry.id)) return prev;
+        return [...prev, entry];
+      });
+      if (!isHost) {
+        if (entry.changeType === 'change_request_accepted' || entry.changeType === 'host_edit') {
+          baselineCodeRef.current = entry.newCode || baselineCodeRef.current;
+        }
+      }
     });
 
     socket.on('new-change-request', (request) => {
@@ -181,7 +223,7 @@ export default function EditorPage() {
       // Find the host's current code to use as oldCode
       socketRef.current.emit('submit-change-request', {
         sessionId,
-        oldCode: '// Previous code version', // In a real app, track the base version the guest edited
+        oldCode: baselineCodeRef.current || code,
         proposedCode: code,
         description: changeDescription
       });
@@ -271,10 +313,39 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
   };
+
+  const rightPanelOpen = showHistory || showAIAssistant;
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      editorRef.current?.layout();
+    });
+  }, [rightPanelOpen, showHistory, showAIAssistant, isOutputVisible]);
+
+  useEffect(() => {
+    if (isOutputVisible && outputPanelRef.current) {
+      outputPanelRef.current.scrollIntoView({ block: 'nearest', behavior: 'auto' });
+    }
+  }, [isOutputVisible]);
+
+  const toggleHistory = () => {
+    setShowHistory((prev) => {
+      if (!prev) setShowAIAssistant(false);
+      return !prev;
+    });
+  };
+
+  const toggleAIAssistant = () => {
+    setShowAIAssistant((prev) => {
+      if (!prev) setShowHistory(false);
+      return !prev;
+    });
+  };
+
   // -------------------------
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100">
+    <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
       {/* Sidebar */}
       <div className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col z-10 shadow-lg">
         <div className="p-4 border-b border-slate-800">
@@ -340,7 +411,9 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
       </div>
 
       {/* Main Editor Area */}
-      <div className="flex-1 flex flex-col relative bg-[#1e1e1e]">
+      <div
+        className={`editor-layout-main flex-1 flex flex-col relative bg-[#1e1e1e] min-w-0 ${rightPanelOpen ? 'mr-80' : ''}`}
+      >
         {/* Topbar */}
         <div className="h-14 border-b border-slate-800 flex items-center px-6 justify-between bg-[#1e1e1e] z-10 shadow-sm">
           <div className="flex items-center gap-4">
@@ -397,8 +470,18 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
               </button>
             )}
             <button
-              onClick={() => setShowAIAssistant(!showAIAssistant)}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2 ${showAIAssistant ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 hover:bg-purple-600/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}`}
+              onClick={toggleHistory}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2 ${showHistory ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-600/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              History
+              {changeHistory.length > 0 && (
+                <span className="bg-cyan-500/30 text-cyan-300 text-xs px-1.5 rounded-full">{changeHistory.length}</span>
+              )}
+            </button>
+            <button
+              onClick={toggleAIAssistant}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2 ${showAIAssistant ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30 hover:bg-purple-600/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
               AI Assistant
@@ -413,9 +496,13 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
           </div>
         </div>
 
-        {/* Monaco Editor Container */}
-        <div className="flex-1 w-full relative flex flex-col">
-          <div className="flex-1 min-h-0 relative">
+        {/* Monaco Editor + Output split */}
+        <div className="flex-1 w-full relative flex flex-col min-h-0">
+          <div
+            className={`min-h-0 relative shrink-0 ${
+              isOutputVisible ? 'h-[52%] min-h-[200px]' : 'flex-1'
+            }`}
+          >
             <Editor
               height="100%"
               language={language === 'c' || language === 'cpp' ? 'cpp' : language}
@@ -439,16 +526,22 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
             />
           </div>
 
-          {/* Output Terminal Pane */}
+          {/* Output Terminal — larger panel, sits higher in the viewport */}
           {isOutputVisible && (
-            <div className="h-48 border-t border-slate-800 bg-[#1e1e1e] flex flex-col">
-              <div className="h-8 border-b border-slate-800 bg-slate-900/40 flex items-center justify-between px-4">
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Output</span>
-                <button onClick={() => setIsOutputVisible(false)} className="text-slate-500 hover:text-slate-300">
+            <div
+              ref={outputPanelRef}
+              className="h-[48%] min-h-[220px] max-h-[50vh] border-t-2 border-indigo-500/40 bg-[#1a1a1a] flex flex-col shrink-0 shadow-[0_-8px_24px_rgba(0,0,0,0.4)]"
+            >
+              <div className="h-9 border-b border-slate-700 bg-slate-900/80 flex items-center justify-between px-4 shrink-0">
+                <span className="text-xs font-semibold text-indigo-300 uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+                  Output
+                </span>
+                <button onClick={() => setIsOutputVisible(false)} className="text-slate-500 hover:text-slate-300 p-1">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
               </div>
-              <div className="flex-1 p-4 overflow-y-auto font-mono text-sm text-slate-300 whitespace-pre-wrap">
+              <div className="flex-1 p-4 overflow-y-auto font-mono text-sm text-slate-200 whitespace-pre-wrap min-h-0">
                 {output}
               </div>
             </div>
@@ -456,9 +549,31 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
         </div>
       </div>
 
-      {/* AI Assistant Sidebar */}
+      {/* Change History Sidebar — fixed, no slide animation */}
+      {showHistory && (
+        <aside className="editor-right-panel fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 flex flex-col z-20 shadow-[-4px_0_15px_rgba(0,0,0,0.3)]">
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h2 className="font-bold text-slate-200 flex items-center gap-2">
+              <svg className="text-cyan-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Change History
+            </h2>
+            <button
+              onClick={() => setShowHistory(false)}
+              className="text-slate-400 hover:text-white p-1"
+              title="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <ChangeHistoryTimeline history={changeHistory} />
+          </div>
+        </aside>
+      )}
+
+      {/* AI Assistant Sidebar — fixed, no slide animation */}
       {showAIAssistant && (
-        <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.3)]">
+        <aside className="editor-right-panel fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 flex flex-col z-20 shadow-[-4px_0_15px_rgba(0,0,0,0.3)]">
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <h2 className="font-bold text-slate-200 flex items-center gap-2">
               <svg className="text-purple-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
@@ -517,7 +632,7 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
               Analyze Full Code
             </button>
           </div>
-        </div>
+        </aside>
       )}
 
       {/* Submit Change Modal */}
