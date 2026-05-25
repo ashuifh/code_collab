@@ -1,0 +1,1122 @@
+[
+  {
+    "id": "38832165-bdf0-4559-a5e0-ab7d51a972cc",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "session_created",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "o0A7YibfWPIcfmwaAAAC",
+    "description": null,
+    "old_code": null,
+    "new_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "metadata": {
+      "language": "javascript",
+      "hasPassword": true,
+      "oldLength": 0,
+      "newLength": 49,
+      "charDelta": 49,
+      "linesAdded": 2,
+      "linesRemoved": 0
+    },
+    "created_at": "2026-05-25T09:04:05.136Z"
+  },
+  {
+    "id": "bea70089-f78d-447b-bb98-b0835bd2e9da",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "host_edit",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "o0A7YibfWPIcfmwaAAAC",
+    "description": null,
+    "old_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "new_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 49,
+      "newLength": 32,
+      "charDelta": -17,
+      "linesAdded": 1,
+      "linesRemoved": 2
+    },
+    "created_at": "2026-05-25T09:04:16.021Z"
+  },
+  {
+    "id": "130f79e8-974c-4547-9e2b-a293aa6a8174",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_left",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "o0A7YibfWPIcfmwaAAAC",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:04:20.745Z"
+  },
+  {
+    "id": "d01cafb0-8b90-494f-b0cd-e116d767db34",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_joined",
+    "actor_username": "dewang",
+    "actor_role": "guest",
+    "actor_socket_id": "KCnxrKUKTJa1acSqAAAF",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:04:26.993Z"
+  },
+  {
+    "id": "46d9319d-8da7-4596-9f2d-36f601b90001",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "change_request_submitted",
+    "actor_username": "dewang",
+    "actor_role": "guest",
+    "actor_socket_id": "KCnxrKUKTJa1acSqAAAF",
+    "description": "ldnglkanvadfva",
+    "old_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq",
+    "new_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq\naoe;gnow;rgnqegqeg",
+    "metadata": {
+      "requestId": "4df9bf22-07bf-4649-be16-cd3548f08af2",
+      "status": "pending",
+      "oldLength": 32,
+      "newLength": 51,
+      "charDelta": 19,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:04:34.295Z"
+  },
+  {
+    "id": "5376c90c-b4b4-46b5-9c0b-4b4d58f50709",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_left",
+    "actor_username": "dewang",
+    "actor_role": "guest",
+    "actor_socket_id": "KCnxrKUKTJa1acSqAAAF",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:04:36.011Z"
+  },
+  {
+    "id": "921ab324-d71f-443d-84ef-e495b5df0e2e",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_joined",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "sSkxRnEVi69u8ZozAAAI",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:04:43.920Z"
+  },
+  {
+    "id": "cd28318f-eaab-45cb-9b07-2c9c8218c22c",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_left",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "sSkxRnEVi69u8ZozAAAI",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:04:43.937Z"
+  },
+  {
+    "id": "70438482-aa43-47cd-a149-9e39cc6a6018",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_joined",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "ye3aP82zN96Gu98FAAAK",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:04:43.961Z"
+  },
+  {
+    "id": "22f96fcd-d8bb-4d24-a4e3-64e053b8c4e2",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "change_request_accepted",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "ye3aP82zN96Gu98FAAAK",
+    "description": "ldnglkanvadfva",
+    "old_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq",
+    "new_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq\naoe;gnow;rgnqegqeg",
+    "metadata": {
+      "requestId": "4df9bf22-07bf-4649-be16-cd3548f08af2",
+      "requesterName": "dewang",
+      "requesterId": "KCnxrKUKTJa1acSqAAAF",
+      "status": "accepted",
+      "oldLength": 32,
+      "newLength": 51,
+      "charDelta": 19,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:04:46.747Z"
+  },
+  {
+    "id": "5f3b577d-b00b-4bb5-b81c-2ba41b87ce45",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "host_edit",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "ye3aP82zN96Gu98FAAAK",
+    "description": null,
+    "old_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq\naoe;gnow;rgnqegqeg",
+    "new_code": "igbjbabgoo;agojb;grwg;jpqogqrbgq\naoe;gnow;rgnqeg\n",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 51,
+      "newLength": 49,
+      "charDelta": -2,
+      "linesAdded": 1,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:05:49.178Z"
+  },
+  {
+    "id": "792d78c5-5d73-467f-a350-262ff6f7ca89",
+    "session_id": "452a181a-c79e-4edf-9d34-562da79da0c4",
+    "change_type": "participant_left",
+    "actor_username": "ayush",
+    "actor_role": "host",
+    "actor_socket_id": "ye3aP82zN96Gu98FAAAK",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:05:49.577Z"
+  },
+  {
+    "id": "2eb2d043-56aa-4a1f-bc13-cc71b80e7406",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "session_created",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Vr8mA_kpQprlYGNxAAAN",
+    "description": null,
+    "old_code": null,
+    "new_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "metadata": {
+      "language": "javascript",
+      "hasPassword": true,
+      "oldLength": 0,
+      "newLength": 49,
+      "charDelta": 49,
+      "linesAdded": 2,
+      "linesRemoved": 0
+    },
+    "created_at": "2026-05-25T09:06:32.073Z"
+  },
+  {
+    "id": "19859170-e9fc-4b8e-b3ad-f050ccd65aee",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Vr8mA_kpQprlYGNxAAAN",
+    "description": null,
+    "old_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "new_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 49,
+      "newLength": 60,
+      "charDelta": 11,
+      "linesAdded": 1,
+      "linesRemoved": 2
+    },
+    "created_at": "2026-05-25T09:06:39.564Z"
+  },
+  {
+    "id": "efc5c92d-0143-43e5-9a64-c1312184c812",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Vr8mA_kpQprlYGNxAAAN",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:06:44.428Z"
+  },
+  {
+    "id": "4aa70cef-b73e-417b-985b-07a906c1db84",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "EXWkgGgXHy7vCb3UAAAQ",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:06:53.231Z"
+  },
+  {
+    "id": "e0521904-6089-4525-b0bf-1ee9f1fa127c",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "change_request_submitted",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "EXWkgGgXHy7vCb3UAAAQ",
+    "description": "wg;w",
+    "old_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek",
+    "new_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek\nehog;wrjif3r[ptiwrig;ekr]gjpekrngwthtwhwtrh",
+    "metadata": {
+      "requestId": "c96707a3-5c73-4015-b32a-f31f19d30bf2",
+      "status": "pending",
+      "oldLength": 60,
+      "newLength": 104,
+      "charDelta": 44,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:07:04.084Z"
+  },
+  {
+    "id": "b3310804-e743-4f7b-a2a9-48b8f8d3ea58",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "EXWkgGgXHy7vCb3UAAAQ",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:07:08.556Z"
+  },
+  {
+    "id": "ac097b2b-1349-4594-9313-4140836f4cf0",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "3DxgsIXGEt5W_KlJAAAT",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:07:15.206Z"
+  },
+  {
+    "id": "ae008fd0-c92b-4ee4-afba-7577126b9e69",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "3DxgsIXGEt5W_KlJAAAT",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:07:15.229Z"
+  },
+  {
+    "id": "6dd20e67-e67c-49ab-996d-ff99b7bd0537",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Ik1VOnHx9anLMsoKAAAV",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:07:15.246Z"
+  },
+  {
+    "id": "752d5b7e-e81b-4a3d-87a5-fed80a41aa2d",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "change_request_rejected",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Ik1VOnHx9anLMsoKAAAV",
+    "description": "wg;w",
+    "old_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek",
+    "new_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek\nehog;wrjif3r[ptiwrig;ekr]gjpekrngwthtwhwtrh",
+    "metadata": {
+      "requestId": "c96707a3-5c73-4015-b32a-f31f19d30bf2",
+      "requesterName": "ayush",
+      "requesterId": "EXWkgGgXHy7vCb3UAAAQ",
+      "status": "rejected",
+      "oldLength": 60,
+      "newLength": 104,
+      "charDelta": 44,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:07:23.797Z"
+  },
+  {
+    "id": "58f4a927-3dcf-44e0-8dfe-d766cdea2a82",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "dewang",
+    "actor_role": "host",
+    "actor_socket_id": "Ik1VOnHx9anLMsoKAAAV",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:09:21.987Z"
+  },
+  {
+    "id": "96b71136-accb-4790-8f9e-f36a61399b08",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "n2jAsTzA0HTCElOAAAAY",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:09:26.050Z"
+  },
+  {
+    "id": "e285f646-8431-465c-9870-d47593f54f27",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 2
+    },
+    "created_at": "2026-05-25T09:09:26.084Z"
+  },
+  {
+    "id": "bda40448-a597-4082-b236-3a8eabbda352",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "n2jAsTzA0HTCElOAAAAY",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:09:26.090Z"
+  },
+  {
+    "id": "d76ad799-929a-45cc-a9ae-9e64c76b4f1a",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnek",
+    "new_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnekp[k[pk[pklm,,.]]]mmlm,;,l.;m,l;,l;,;. ,. ,. ,ml;,kp,;'',",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 60,
+      "newLength": 116,
+      "charDelta": 56,
+      "linesAdded": 1,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:10:23.454Z"
+  },
+  {
+    "id": "3068e569-9653-49da-8d7d-d5a932c1e10c",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": "rghboer;hgergo'regoj'ewjgerjgjwergkje;kjer;jgerg/krngg/kgnekp[k[pk[pklm,,.]]]mmlm,;,l.;m,l;,l;,;. ,. ,. ,ml;,kp,;'',",
+    "new_code": "",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 116,
+      "newLength": 0,
+      "charDelta": -116,
+      "linesAdded": 0,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:11:15.806Z"
+  },
+  {
+    "id": "0db28190-df6f-40e8-bc71-44d099fa7d78",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": "",
+    "new_code": "#include<bits/stdc++.h>\nusing namespace std;\nint main()\n{\n    int a;\n    a=10;\n    cout<<a<<endl;\n    return 0;\n}",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 0,
+      "newLength": 113,
+      "charDelta": 113,
+      "linesAdded": 9,
+      "linesRemoved": 0
+    },
+    "created_at": "2026-05-25T09:11:42.975Z"
+  },
+  {
+    "id": "d602717b-4c93-4b1c-b5bc-d558b0c3d607",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": "#include<bits/stdc++.h>\nusing namespace std;\nint main()\n{\n    int a;\n    a=10;\n    cout<<a<<endl;\n    return 0;\n}",
+    "new_code": "#include<bits/stdc++.h>\nusing namespace std;\nint main()\n{\n    int a;\n    a=10;\n    cout<<a<<endl;\n    return 0;\n}\n",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 113,
+      "newLength": 114,
+      "charDelta": 1,
+      "linesAdded": 1,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:12:34.061Z"
+  },
+  {
+    "id": "705f8343-e33b-4fc8-9901-b9b859ce4f83",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "2O3tPrE4QAltSS67AAAa",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:12:35.608Z"
+  },
+  {
+    "id": "d4127492-ecaa-4229-90c9-40ce58852a66",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "XjOxXL_otT_dLLNrAAAc",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:17:30.019Z"
+  },
+  {
+    "id": "4c3d617a-5848-40d2-81b8-7832fe786904",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "XjOxXL_otT_dLLNrAAAc",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:17:30.083Z"
+  },
+  {
+    "id": "97669472-30f0-4e50-b482-fa007045d8cd",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "zYhUO0JnCvMh68QcAAAf",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:17:30.855Z"
+  },
+  {
+    "id": "df5bf0ce-13e5-4cf1-9c02-2fb8d58695ec",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "zYhUO0JnCvMh68QcAAAf",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:17:31.791Z"
+  },
+  {
+    "id": "f4974b97-92f5-41a8-9acc-567af04bf8cc",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "WuOJGbh4ROksKRjYAAAh",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:17:31.835Z"
+  },
+  {
+    "id": "80387907-aec9-4724-8b3d-030ad334f8a7",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "WuOJGbh4ROksKRjYAAAh",
+    "description": null,
+    "old_code": "#include<bits/stdc++.h>\nusing namespace std;\nint main()\n{\n    int a;\n    a=10;\n    cout<<a<<endl;\n    return 0;\n}\n",
+    "new_code": "",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 114,
+      "newLength": 0,
+      "charDelta": -114,
+      "linesAdded": 0,
+      "linesRemoved": 9
+    },
+    "created_at": "2026-05-25T09:18:39.879Z"
+  },
+  {
+    "id": "f36768cd-7f41-4630-ac7a-e88095af2917",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "WuOJGbh4ROksKRjYAAAh",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:19:03.269Z"
+  },
+  {
+    "id": "a0b6c9be-cfe0-43a7-8078-eea969c5d5f0",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "GElUgrOyW7JAe_pbAAAj",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:19:03.309Z"
+  },
+  {
+    "id": "08ceac94-e235-441c-8cc0-0105e1d4e05e",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "GElUgrOyW7JAe_pbAAAj",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:19:03.352Z"
+  },
+  {
+    "id": "2e294894-b127-417e-aba0-80658bafa6e9",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "i-LtZUOkJbs1yFjSAAAl",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:19:03.389Z"
+  },
+  {
+    "id": "0e27bfdc-4b51-492b-aadc-83fc37fa88c7",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "Host",
+    "actor_role": "host",
+    "actor_socket_id": "WuOJGbh4ROksKRjYAAAh",
+    "description": null,
+    "old_code": "",
+    "new_code": "\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 0,
+      "newLength": 13,
+      "charDelta": 13,
+      "linesAdded": 13,
+      "linesRemoved": 0
+    },
+    "created_at": "2026-05-25T09:19:04.275Z"
+  },
+  {
+    "id": "0ea7d54d-045d-43d3-bb75-38dd49eafb23",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "i-LtZUOkJbs1yFjSAAAl",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:19:22.085Z"
+  },
+  {
+    "id": "eb343a75-2986-44e7-bcd7-7139f618544f",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "_t_bqeo-YE5wO6XGAAAn",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:19:22.157Z"
+  },
+  {
+    "id": "1983f1aa-330f-4316-817a-ad8d8f5b9d15",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "_t_bqeo-YE5wO6XGAAAn",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:19:22.173Z"
+  },
+  {
+    "id": "a42c1970-2c9a-411c-a5e2-755cb969c9b4",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "sm2TmgBC6xtf7TWDAAAp",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:19:22.191Z"
+  },
+  {
+    "id": "37f9b357-6d57-4f87-be23-7fc6eb821cbe",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "host_edit",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "sm2TmgBC6xtf7TWDAAAp",
+    "description": null,
+    "old_code": "\n\n\n\n\n\n\n\n\n\n\n\n\n",
+    "new_code": "\n\n\n\n\n\n\n\n\nals\n\n\n\n cla scascac",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 13,
+      "newLength": 28,
+      "charDelta": 15,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:21:18.464Z"
+  },
+  {
+    "id": "e57a397a-a564-4b83-8dc3-8379f79b3298",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "sm2TmgBC6xtf7TWDAAAp",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:22:40.121Z"
+  },
+  {
+    "id": "54e6a9a0-9aec-4730-84e8-5121a0c4ebd1",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "fl_H6-oESN5gqdXdAAAr",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:22:40.163Z"
+  },
+  {
+    "id": "5abf50e2-402a-4840-9627-c55d1be33fe3",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "fl_H6-oESN5gqdXdAAAr",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:22:40.198Z"
+  },
+  {
+    "id": "49393029-f162-49b1-a23c-a56a201f9869",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "941qaW2eF3GqpcM4AAAt",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:22:40.234Z"
+  },
+  {
+    "id": "4b11a46f-616a-4c95-92d0-93c5c60dc980",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "941qaW2eF3GqpcM4AAAt",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:22:43.088Z"
+  },
+  {
+    "id": "ed474391-618d-48d7-ae57-a7bdadc0f47b",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "QcGmWSwf7Z_kZ1UhAAAv",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:22:43.107Z"
+  },
+  {
+    "id": "ad59ccb8-7515-425b-9134-e7136651a9a1",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "QcGmWSwf7Z_kZ1UhAAAv",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:22:43.113Z"
+  },
+  {
+    "id": "4b2a2537-223b-42ac-8e9d-690c56e46a1c",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_joined",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "ceF-td_t3EHvE3eFAAAx",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:22:43.125Z"
+  },
+  {
+    "id": "dc4c16d3-fbae-417d-874c-e80729602f1d",
+    "session_id": "99de48fc-f4b0-49df-996a-7738fc763922",
+    "change_type": "participant_left",
+    "actor_username": "http://localhost:5173/session/99de48fc-f4b0-49df-996a-7738fc763922",
+    "actor_role": "host",
+    "actor_socket_id": "ceF-td_t3EHvE3eFAAAx",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:23:14.633Z"
+  },
+  {
+    "id": "19e22344-8c44-4b6c-8760-cebf75fed1cf",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "session_created",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "zQLsH_y_l7_kkMweAAA0",
+    "description": null,
+    "old_code": null,
+    "new_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "metadata": {
+      "language": "javascript",
+      "hasPassword": true,
+      "oldLength": 0,
+      "newLength": 49,
+      "charDelta": 49,
+      "linesAdded": 2,
+      "linesRemoved": 0
+    },
+    "created_at": "2026-05-25T09:25:29.531Z"
+  },
+  {
+    "id": "d330f85e-3388-4467-b0d3-1a1f3fc1d1eb",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "host_edit",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "zQLsH_y_l7_kkMweAAA0",
+    "description": null,
+    "old_code": "// Welcome to CollabCode!\n// Start coding here...",
+    "new_code": "dnfganv;kadngkn;er;gWGGWv",
+    "metadata": {
+      "language": "javascript",
+      "oldLength": 49,
+      "newLength": 25,
+      "charDelta": -24,
+      "linesAdded": 1,
+      "linesRemoved": 2
+    },
+    "created_at": "2026-05-25T09:25:35.476Z"
+  },
+  {
+    "id": "744ba633-4fee-4ae7-97b6-dcc2b9ed7896",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_left",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "zQLsH_y_l7_kkMweAAA0",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:25:41.577Z"
+  },
+  {
+    "id": "29da10a1-6401-498a-9c92-4173cb97f2b8",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_joined",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "WbayHBVvqEdCCRvQAAA3",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:25:51.321Z"
+  },
+  {
+    "id": "aec14ea2-f9d9-4f4a-bf08-b99202545d4f",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "change_request_submitted",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "WbayHBVvqEdCCRvQAAA3",
+    "description": "aksnfkasasva",
+    "old_code": "dnfganv;kadngkn;er;gWGGWv",
+    "new_code": "dnfganv;kadngkn;er;gWGGWva\najnf.adnvdavladvava",
+    "metadata": {
+      "requestId": "f29c7f29-19e2-4767-aaa5-16902f5d9af6",
+      "status": "pending",
+      "oldLength": 25,
+      "newLength": 46,
+      "charDelta": 21,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:25:59.761Z"
+  },
+  {
+    "id": "4e1a946c-9da3-45a4-b866-db39e7eb6185",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_left",
+    "actor_username": "ayush",
+    "actor_role": "guest",
+    "actor_socket_id": "WbayHBVvqEdCCRvQAAA3",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:26:03.561Z"
+  },
+  {
+    "id": "9d2d797a-4cc5-479f-9a5d-03dfb320ce75",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_joined",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "wnyYn58ZCktiVzDMAAA6",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:26:09.594Z"
+  },
+  {
+    "id": "42bfdfd3-907c-49b4-873f-1072a95339e0",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_left",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "wnyYn58ZCktiVzDMAAA6",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:26:09.607Z"
+  },
+  {
+    "id": "e2dbbb3b-f843-438c-baec-856fb07b2a81",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_joined",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "xd09iPUpoEN8s9UTAAA8",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 1
+    },
+    "created_at": "2026-05-25T09:26:09.628Z"
+  },
+  {
+    "id": "e7825405-75d2-4355-9fdb-5560f2850eb8",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "change_request_accepted",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "xd09iPUpoEN8s9UTAAA8",
+    "description": "aksnfkasasva",
+    "old_code": "dnfganv;kadngkn;er;gWGGWv",
+    "new_code": "dnfganv;kadngkn;er;gWGGWva\najnf.adnvdavladvava",
+    "metadata": {
+      "requestId": "f29c7f29-19e2-4767-aaa5-16902f5d9af6",
+      "requesterName": "ayush",
+      "requesterId": "WbayHBVvqEdCCRvQAAA3",
+      "status": "accepted",
+      "oldLength": 25,
+      "newLength": 46,
+      "charDelta": 21,
+      "linesAdded": 2,
+      "linesRemoved": 1
+    },
+    "created_at": "2026-05-25T09:26:14.112Z"
+  },
+  {
+    "id": "dd04fc4c-66a5-41a8-8a82-280f1647a809",
+    "session_id": "c4b97b3a-059d-4df9-bd90-1bd81a68a225",
+    "change_type": "participant_left",
+    "actor_username": "a",
+    "actor_role": "host",
+    "actor_socket_id": "xd09iPUpoEN8s9UTAAA8",
+    "description": null,
+    "old_code": null,
+    "new_code": null,
+    "metadata": {
+      "participantCount": 0
+    },
+    "created_at": "2026-05-25T09:26:30.978Z"
+  }
+]

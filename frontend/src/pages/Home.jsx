@@ -1,18 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [createUsername, setCreateUsername] = useState('');
+  const [createPassword, setCreatePassword] = useState('');
   const [joinSessionId, setJoinSessionId] = useState('');
-  const [password, setPassword] = useState('');
+  const [joinUsername, setJoinUsername] = useState('');
+  const [joinPassword, setJoinPassword] = useState('');
 
   const handleCreateSession = (e) => {
     e.preventDefault();
-    const finalUsername = username.trim() || 'Host';
+    const finalUsername = createUsername.trim() || 'Host';
     const newSessionId = uuidv4();
-    navigate(`/session/${newSessionId}`, { state: { username: finalUsername, password, isHost: true } });
+    navigate(`/session/${newSessionId}`, {
+      state: { username: finalUsername, password: createPassword, isHost: true }
+    });
   };
 
   const handleJoinSession = (e) => {
@@ -22,8 +26,10 @@ export default function Home() {
       if (finalId.includes('/session/')) {
         finalId = finalId.split('/session/')[1].split('/')[0];
       }
-      const finalUsername = username.trim() || 'Guest';
-      navigate(`/session/${finalId}`, { state: { username: finalUsername, password, isHost: false } });
+      const finalUsername = joinUsername.trim() || 'Guest';
+      navigate(`/session/${finalId}`, {
+        state: { username: finalUsername, password: joinPassword, isHost: false }
+      });
     }
   };
 
@@ -40,8 +46,8 @@ export default function Home() {
               type="text"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 transition-colors"
               placeholder="Enter your name"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={createUsername}
+              onChange={(e) => setCreateUsername(e.target.value)}
             />
           </div>
           <div>
@@ -50,8 +56,8 @@ export default function Home() {
               type="password" 
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 transition-colors"
               placeholder="Secure your session"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={createPassword}
+              onChange={(e) => setCreatePassword(e.target.value)}
             />
           </div>
           <button
@@ -76,15 +82,15 @@ export default function Home() {
               type="text"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
               placeholder="Your Name (optional)"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={joinUsername}
+              onChange={(e) => setJoinUsername(e.target.value)}
             />
             <input 
               type="password" 
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
               placeholder="Admin Password (if you are the host)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={joinPassword}
+              onChange={(e) => setJoinPassword(e.target.value)}
             />
             <button
               type="submit"
