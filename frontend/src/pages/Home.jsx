@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -10,6 +10,12 @@ export default function Home() {
   const [joinUsername, setJoinUsername] = useState('');
   const [joinPassword, setJoinPassword] = useState('');
 
+  // Join section must stay empty on load — browser autofill was copying create-form values
+  useEffect(() => {
+    setJoinSessionId('');
+    setJoinUsername('');
+    setJoinPassword('');
+  }, []);
   const handleCreateSession = (e) => {
     e.preventDefault();
     const finalUsername = createUsername.trim() || 'Host';
@@ -39,11 +45,16 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-center text-blue-400 mb-2">CollabCode</h1>
         <p className="text-center text-slate-400 mb-8">Real-time Collaborative Code Editor</p>
 
-        <form onSubmit={handleCreateSession} className="space-y-4">
+        <form onSubmit={handleCreateSession} className="space-y-4" autoComplete="off">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Your Name</label>
+            <label htmlFor="create-username" className="block text-sm font-medium text-slate-300 mb-1">
+              Your Name
+            </label>
             <input
+              id="create-username"
+              name="collab-create-username"
               type="text"
+              autoComplete="name"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 transition-colors"
               placeholder="Enter your name"
               value={createUsername}
@@ -51,9 +62,14 @@ export default function Home() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Admin Password (Optional)</label>
-            <input 
-              type="password" 
+            <label htmlFor="create-password" className="block text-sm font-medium text-slate-300 mb-1">
+              Admin Password (Optional)
+            </label>
+            <input
+              id="create-password"
+              name="collab-create-admin-password"
+              type="password"
+              autoComplete="new-password"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 transition-colors"
               placeholder="Secure your session"
               value={createPassword}
@@ -67,30 +83,51 @@ export default function Home() {
             Create New Session
           </button>
         </form>
+
         <div className="mt-8 pt-6 border-t border-slate-800 text-center">
           <p className="text-slate-400 text-sm">Have a session ID?</p>
-          <form onSubmit={handleJoinSession} className="mt-2 flex flex-col gap-3">
+          <form
+            onSubmit={handleJoinSession}
+            className="mt-2 flex flex-col gap-3"
+            autoComplete="off"
+            data-form-type="join"
+          >
             <input
+              id="join-session-id"
+              name="collab-join-session-id"
               type="text"
+              autoComplete="off"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
               placeholder="Enter Session ID or Link"
               value={joinSessionId}
               onChange={(e) => setJoinSessionId(e.target.value)}
+              readOnly
+              onFocus={(e) => e.target.removeAttribute('readOnly')}
               required
             />
             <input
+              id="join-username"
+              name="collab-join-display-name"
               type="text"
+              autoComplete="off"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
               placeholder="Your Name (optional)"
               value={joinUsername}
               onChange={(e) => setJoinUsername(e.target.value)}
+              readOnly
+              onFocus={(e) => e.target.removeAttribute('readOnly')}
             />
-            <input 
-              type="password" 
+            <input
+              id="join-host-password"
+              name="collab-join-host-password"
+              type="password"
+              autoComplete="new-password"
               className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-100 placeholder-slate-500 text-sm"
-              placeholder="Admin Password (if you are the host)"
+              placeholder="Admin Password (only if you are the host)"
               value={joinPassword}
               onChange={(e) => setJoinPassword(e.target.value)}
+              readOnly
+              onFocus={(e) => e.target.removeAttribute('readOnly')}
             />
             <button
               type="submit"

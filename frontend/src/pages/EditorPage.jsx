@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import { io } from 'socket.io-client';
 import ChangeHistoryTimeline from '../components/ChangeHistoryTimeline';
 
-const API_BASE = 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export default function EditorPage() {
   const { sessionId } = useParams();
@@ -41,22 +41,58 @@ export default function EditorPage() {
     return window.prompt("Welcome to CollabCode! Please enter your name to join:") || 'Guest User';
   });
   const [memberId] = useState(() => Math.floor(10000 + Math.random() * 90000));
-  const [isHost, setIsHost] = useState(location.state?.isHost || false);
-  const password = location.state?.password || '';
+  // Host ONLY when user clicked "Create New Session" (not from shared link / sessionStorage)
+  const isSessionCreator = location.state?.isHost === true;
+  const [isHost, setIsHost] = useState(false);
+  const joinPassword = location.state?.password || '';
+  const languageRef = useRef(language);
+  const joinPasswordRef = useRef(joinPassword);
+  languageRef.current = language;
+  joinPasswordRef.current = joinPassword;
 
   useEffect(() => {
-    // Initialize socket connection
-    // We'll connect to the backend running on port 3001
+    if (isSessionCreator) return;
+
+    const loadSavedCode = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/sessions/${sessionId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.exists && data.code) {
+          setCode(data.code);
+          baselineCodeRef.current = data.code;
+        }
+        if (data.language) setLanguage(data.language);
+      } catch {
+        /* server offline — socket will sync */
+      }
+    };
+    loadSavedCode();
+  }, [sessionId, isSessionCreator]);
+
+  useEffect(() => {
     socketRef.current = io(API_BASE);
     const socket = socketRef.current;
 
     socket.on('connect', () => {
-      console.log('Connected to server');
-      if (location.state?.isHost) {
-        socket.emit('create-session', { sessionId, username, language, password });
+      if (isSessionCreator) {
+        socket.emit('create-session', {
+          sessionId,
+          username,
+          language: languageRef.current,
+          password: joinPasswordRef.current
+        });
       } else {
-        socket.emit('join-session', { sessionId, username, password });
+        socket.emit('join-session', {
+          sessionId,
+          username,
+          password: joinPasswordRef.current
+        });
       }
+    });
+
+    socket.on('error', (message) => {
+      alert(typeof message === 'string' ? message : 'Could not join session');
     });
 
     const fetchHistory = async () => {
@@ -71,7 +107,7 @@ export default function EditorPage() {
       }
     };
 
-    socket.on('session-created', ({ sessionId: id, session, role }) => {
+    socket.on('session-created', ({ session, role }) => {
       setParticipants(session.participants);
       setCode(session.code);
       baselineCodeRef.current = session.code;
@@ -86,8 +122,12 @@ export default function EditorPage() {
       baselineCodeRef.current = session.code;
       setLanguage(session.language);
       setIsHost(role === 'host');
-      setChangeRequests(session.changeRequests);
+      setChangeRequests(session.changeRequests || []);
       fetchHistory();
+    });
+
+    socket.on('role-updated', ({ role }) => {
+      setIsHost(role === 'host');
     });
 
     socket.on('participants-updated', (updatedParticipants) => {
@@ -96,9 +136,7 @@ export default function EditorPage() {
 
     socket.on('code-updated', (newCode) => {
       setCode(newCode);
-      if (!isHost) {
-        baselineCodeRef.current = newCode;
-      }
+      baselineCodeRef.current = newCode;
     });
 
     socket.on('change-history', (history) => {
@@ -131,7 +169,7 @@ export default function EditorPage() {
     return () => {
       socket.disconnect();
     };
-  }, [sessionId, username, isHost]);
+  }, [sessionId, username, isSessionCreator]);
 
   const handleEditorChange = (value) => {
     setCode(value);
@@ -143,7 +181,16 @@ export default function EditorPage() {
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert('Link copied to clipboard! Share it with others so they can join.');
+    alert(
+      'Link copied!\n\nAnyone with this link joins as GUEST (Submit Change).\n' +
+      'Only you stay host if you created the session, or rejoin with Admin Password from Home.'
+    );
+  };
+
+  const handleClaimHost = () => {
+    const pwd = window.prompt('Enter Admin Password to join as Host:');
+    if (!pwd || !socketRef.current) return;
+    socketRef.current.emit('claim-host', { sessionId, password: pwd });
   };
 
   const handleLogout = () => {
@@ -244,33 +291,37 @@ export default function EditorPage() {
     }
   };
 
+  const callGemini = async (prompt) => {
+    const response = await fetch(`${API_BASE}/api/ai/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'AI request failed');
+    return data.text;
+  };
   // --- AI Assistant Logic ---
   const handleAnalyzeCode = async () => {
     if (!code || code.trim().length < 5) {
       alert("Please write some code first!");
       return;
     }
-
     setIsAnalyzing(true);
     setAiSuggestions([{ type: 'info', title: 'Analyzing Code', desc: 'Understanding your code...' }]);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'your_gemini_api_key_here') throw new Error('No API Key');
-
       const prompt = `Explain this ${language} code in detail. Tell me what I am doing, what is inside this code, and what everything does. Be concise but clear. Do not use markdown blocks for the final answer, keep it readable.\n\nCode:\n${code}`;
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-      
-      const data = await response.json();
-      const text = data.candidates[0].content.parts[0].text;
-      
+      const text = await callGemini(prompt);
       setAiSuggestions([{ type: 'info', title: 'Code Explanation', desc: text }]);
     } catch (e) {
-       setAiSuggestions([{ type: 'warning', title: 'Analysis Failed', desc: e.message === 'No API Key' ? 'Please add VITE_GEMINI_API_KEY in .env' : 'API error occurred.' }]);
+      setAiSuggestions([{
+        type: 'warning',
+        title: 'Analysis Failed',
+        desc: e.message === 'No API Key'
+          ? 'Add VITE_GEMINI_API_KEY in frontend/.env (no spaces around =)'
+          : e.message
+      }]);
     }
     setIsAnalyzing(false);
   };
@@ -280,9 +331,6 @@ export default function EditorPage() {
     setAiReviews(prev => ({ ...prev, [req.id]: '🤖 AI is analyzing the changes...' }));
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey || apiKey === 'your_gemini_api_key_here') throw new Error('No API Key');
-
       const prompt = `You are a strict code reviewer. Review the following code change proposed by a user.
 Original Code:
 ${req.oldCode}
@@ -294,18 +342,15 @@ Developer's Comment: ${req.description}
 
 Write a very brief review (2-3 sentences max) explaining what changed, if it looks correct, and if the admin should merge it. Keep it concise without markdown.`;
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
-      
-      const data = await response.json();
-      const text = data.candidates[0].content.parts[0].text;
-      
+      const text = await callGemini(prompt);
       setAiReviews(prev => ({ ...prev, [req.id]: text }));
     } catch (e) {
-      setAiReviews(prev => ({ ...prev, [req.id]: 'AI Review failed. Ensure your Gemini API key is correct in .env' }));
+      setAiReviews(prev => ({
+        ...prev,
+        [req.id]: e.message === 'No API Key'
+          ? 'Add VITE_GEMINI_API_KEY in frontend/.env'
+          : `AI Review failed: ${e.message}`
+      }));
     }
     setIsReviewingAI(false);
   };
@@ -392,12 +437,12 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
               <div className="text-xs text-slate-400 truncate">ID: #{memberId}</div>
             </div>
             {/* Logout Button */}
-            <button 
+            <button
               onClick={handleLogout}
               className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-md transition-colors shrink-0"
               title="Logout"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
             </button>
           </div>
           <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
@@ -461,19 +506,28 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
             )}
 
             {!isHost && (
-              <button
-                onClick={() => setShowSubmitModal(true)}
-                className="px-4 py-1.5 bg-green-600/20 text-green-400 hover:bg-green-600/30 border border-green-500/30 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>
-                Submit Change
-              </button>
+              <>
+                <button
+                  onClick={() => setShowSubmitModal(true)}
+                  className="px-4 py-1.5 bg-green-600/20 text-green-400 hover:bg-green-600/30 border border-green-500/30 rounded-md text-sm font-medium transition-all shadow-sm flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7" /><path d="M12 19V5" /></svg>
+                  Submit Change
+                </button>
+                <button
+                  onClick={handleClaimHost}
+                  className="px-3 py-1.5 bg-slate-800 text-slate-400 hover:text-amber-400 border border-slate-700 hover:border-amber-500/30 rounded-md text-sm font-medium transition-colors"
+                  title="Only if you are the session admin"
+                >
+                  I'm the Host
+                </button>
+              </>
             )}
             <button
               onClick={toggleHistory}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center gap-2 ${showHistory ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-600/30' : 'bg-slate-800 text-slate-400 hover:text-slate-200'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
               History
               {changeHistory.length > 0 && (
                 <span className="bg-cyan-500/30 text-cyan-300 text-xs px-1.5 rounded-full">{changeHistory.length}</span>
@@ -499,9 +553,8 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
         {/* Monaco Editor + Output split */}
         <div className="flex-1 w-full relative flex flex-col min-h-0">
           <div
-            className={`min-h-0 relative shrink-0 ${
-              isOutputVisible ? 'h-[52%] min-h-[200px]' : 'flex-1'
-            }`}
+            className={`min-h-0 relative shrink-0 ${isOutputVisible ? 'h-[52%] min-h-[200px]' : 'flex-1'
+              }`}
           >
             <Editor
               height="100%"
@@ -554,7 +607,7 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
         <aside className="editor-right-panel fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 flex flex-col z-20 shadow-[-4px_0_15px_rgba(0,0,0,0.3)]">
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <h2 className="font-bold text-slate-200 flex items-center gap-2">
-              <svg className="text-cyan-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <svg className="text-cyan-500" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
               Change History
             </h2>
             <button
@@ -562,7 +615,7 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
               className="text-slate-400 hover:text-white p-1"
               title="Close"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
@@ -704,7 +757,7 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
                   </div>
                   {aiReviews[req.id] && (
                     <div className="p-3 bg-purple-900/20 border-t border-purple-500/30 text-sm text-purple-200">
-                      <span className="font-bold text-purple-400 mr-2">🤖 AI Review:</span> 
+                      <span className="font-bold text-purple-400 mr-2">🤖 AI Review:</span>
                       {aiReviews[req.id]}
                     </div>
                   )}
@@ -714,7 +767,7 @@ Write a very brief review (2-3 sentences max) explaining what changed, if it loo
                       disabled={isReviewingAI}
                       className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 border border-purple-500/30 rounded-md text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
                       Ask AI for Review
                     </button>
                     <div className="flex gap-3">
