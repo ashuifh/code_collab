@@ -9,6 +9,17 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ── Health Check ──────────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    app: 'CollabCode Backend',
+    message: '🚀 Server is running. Connect via WebSocket for real-time collaboration.',
+    version: '1.0.0'
+  });
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ── AI Proxy ──────────────────────────────────────────────────────────────────
 app.post('/api/ai/analyze', async (req, res) => {
   const { prompt } = req.body;
